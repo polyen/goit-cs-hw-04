@@ -1,5 +1,6 @@
 import os.path
 from multiprocessing import Queue, Process, current_process
+import time
 
 PROCESSES = 4
 
@@ -34,7 +35,11 @@ def parse_result(q):
 
 def main(keywords, directory):
     q = Queue()
-    files = [os.path.join(directory, file) for file in os.listdir(directory) if file.endswith('.txt')]
+    try:
+        files = [os.path.join(directory, file) for file in os.listdir(directory) if file.endswith('.txt')]
+    except Exception as e:
+        print('Error reading directory: ', e)
+        return
 
     processes = []
 
@@ -51,5 +56,7 @@ def main(keywords, directory):
 if __name__ == "__main__":
     keywords = ['by', 'so']
     directory = os.path.normpath(os.path.join(os.getcwd(), 'data'))
+    start = time.time()
     result = main(keywords, directory)
+    print('Time taken: ', time.time() - start)
     print(result)

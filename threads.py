@@ -1,5 +1,6 @@
 import os
 from threading import Thread
+import time
 
 THREADS = 4
 
@@ -28,13 +29,16 @@ def parse_result(result):
 
 def main(keywords, directory):
     result = []
-    files = [os.path.join(directory, file) for file in os.listdir(directory) if file.endswith('.txt')]
+    try:
+        files = [os.path.join(directory, file) for file in os.listdir(directory) if file.endswith('.txt')]
+    except Exception as e:
+        print('Error reading directory: ', e)
+        return
 
-    files_for_threads = [files[i::THREADS] for i in range(THREADS)]
     threads = []
 
-    for files_for_thread in files_for_threads:
-        thread = Thread(target=search_text, args=(keywords, files_for_thread, result))
+    for i in range(THREADS):
+        thread = Thread(target=search_text, args=(keywords, files[i::THREADS], result))
         thread.start()
         threads.append(thread)
 
@@ -46,6 +50,7 @@ def main(keywords, directory):
 if __name__ == "__main__":
     keywords = ['by', 'so']
     directory = os.path.normpath(os.path.join(os.getcwd(), 'data'))
+    start = time.time()
     result = main(keywords, directory)
-
+    print('Time taken: ', time.time() - start)
     print(result)
